@@ -3,20 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management System DApp</title>
+    <title>医院管理系统 | Hospital Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             padding-top: 20px;
+            padding-bottom: 40px;
         }
         .section {
             margin-bottom: 30px;
             padding: 20px;
             border-radius: 5px;
             background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .hidden {
             display: none;
+        }
+        .card {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            font-weight: 600;
+        }
+        #statusMessage {
+            display: none;
+        }
+        #statusMessage.show {
+            display: block;
         }
     </style>
 </head>
@@ -24,7 +38,7 @@
     <div class="container">
         <h1 class="text-center mb-4">医院管理系统 | Hospital Management System</h1>
         
-        <div class="alert alert-info" id="statusMessage"></div>
+        <div class="alert alert-info" id="statusMessage" role="alert"></div>
         
         <!-- Account Info Section -->
         <div class="section">
@@ -42,20 +56,20 @@
                 <div class="card-header">添加医生 | Add Doctor</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">医生地址 | Doctor Address:</label>
-                        <input type="text" id="doctorAddress" class="form-control">
+                        <label for="doctorAddress" class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="doctorAddress" class="form-control" placeholder="输入医生的以太坊地址">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">专业 | Specialty:</label>
-                        <input type="text" id="doctorSpecialty" class="form-control">
+                        <label for="doctorSpecialty" class="form-label">专业 | Specialty:</label>
+                        <input type="text" id="doctorSpecialty" class="form-control" placeholder="例如：内科、外科">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">上班时间 | Working Days (e.g. "1111100" for Mon-Fri):</label>
-                        <input type="text" id="doctorWorkingDays" class="form-control">
+                        <label for="doctorWorkingDays" class="form-label">上班时间 | Working Days (e.g. "1111100" for Mon-Fri):</label>
+                        <input type="text" id="doctorWorkingDays" class="form-control" placeholder="1111100表示周一至周五上班">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">学历 | Qualification:</label>
-                        <input type="text" id="doctorQualification" class="form-control">
+                        <label for="doctorQualification" class="form-label">学历 | Qualification:</label>
+                        <input type="text" id="doctorQualification" class="form-control" placeholder="例如：博士、硕士">
                     </div>
                     <button id="addDoctorBtn" class="btn btn-success">添加医生 | Add Doctor</button>
                 </div>
@@ -65,8 +79,8 @@
                 <div class="card-header">撤销医生权限 | Revoke Doctor</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">医生地址 | Doctor Address:</label>
-                        <input type="text" id="revokeDoctorAddress" class="form-control">
+                        <label for="revokeDoctorAddress" class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="revokeDoctorAddress" class="form-control" placeholder="输入要撤销的医生地址">
                     </div>
                     <button id="revokeDoctorBtn" class="btn btn-danger">撤销医生 | Revoke Doctor</button>
                 </div>
@@ -85,20 +99,19 @@
         <div id="doctorSection" class="section hidden">
             <h2>医生功能 | Doctor Functions</h2>
             
-            
             <div class="card mb-3">
                 <div class="card-header">添加患者 | Add Patient</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">患者地址 | Patient Address:</label>
-                        <input type="text" id="patientAddress" class="form-control">
+                        <label for="patientAddress" class="form-label">患者地址 | Patient Address:</label>
+                        <input type="text" id="patientAddress" class="form-control" placeholder="输入患者的以太坊地址">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">年龄 | Age:</label>
-                        <input type="number" id="patientAge" class="form-control">
+                        <label for="patientAge" class="form-label">年龄 | Age:</label>
+                        <input type="number" id="patientAge" class="form-control" min="0" max="120">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">性别 | Gender:</label>
+                        <label for="patientGender" class="form-label">性别 | Gender:</label>
                         <select id="patientGender" class="form-select">
                             <option value="男">男 | Male</option>
                             <option value="女">女 | Female</option>
@@ -108,17 +121,16 @@
                 </div>
             </div>
             
-            <!-- 修改：添加ID以便滚动定位 | Modified: Add ID for scroll targeting -->
             <div id="medicationFormCard" class="card mb-3">
                 <div class="card-header">添加药物记录 | Add Medication</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">患者地址 | Patient Address:</label>
-                        <input type="text" id="medPatientAddress" class="form-control">
+                        <label for="medPatientAddress" class="form-label">患者地址 | Patient Address:</label>
+                        <input type="text" id="medPatientAddress" class="form-control" placeholder="输入患者的以太坊地址">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">药物记录 | Medication:</label>
-                        <textarea id="medication" class="form-control"></textarea>
+                        <label for="medication" class="form-label">药物记录 | Medication:</label>
+                        <textarea id="medication" class="form-control" rows="3" placeholder="输入药物名称和用量"></textarea>
                     </div>
                     <button id="addMedicationBtn" class="btn btn-primary">添加记录 | Add Medication</button>
                 </div>
@@ -128,8 +140,8 @@
                 <div class="card-header">设置预约费用 | Set Appointment Fee</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">费用 (ETH) | Fee:</label>
-                        <input type="number" id="appointmentFee" class="form-control" step="0.001">
+                        <label for="appointmentFee" class="form-label">费用 (ETH) | Fee:</label>
+                        <input type="number" id="appointmentFee" class="form-control" step="0.001" min="0">
                     </div>
                     <button id="setFeeBtn" class="btn btn-warning">设置费用 | Set Fee</button>
                 </div>
@@ -152,11 +164,11 @@
                 <div class="card-header">注册为患者 | Register as Patient</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">年龄 | Age:</label>
-                        <input type="number" id="registerAge" class="form-control">
+                        <label for="registerAge" class="form-label">年龄 | Age:</label>
+                        <input type="number" id="registerAge" class="form-control" min="0" max="120">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">性别 | Gender:</label>
+                        <label for="registerGender" class="form-label">性别 | Gender:</label>
                         <select id="registerGender" class="form-select">
                             <option value="男">男 | Male</option>
                             <option value="女">女 | Female</option>
@@ -178,11 +190,11 @@
                 <div class="card-header">预约医生 | Book Appointment</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">医生地址 | Doctor Address:</label>
-                        <input type="text" id="bookDoctorAddress" class="form-control">
+                        <label for="bookDoctorAddress" class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="bookDoctorAddress" class="form-control" placeholder="输入医生的以太坊地址">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">预约日期 | Appointment Date:</label>
+                        <label for="appointmentDate" class="form-label">预约日期 | Appointment Date:</label>
                         <input type="datetime-local" id="appointmentDate" class="form-control">
                     </div>
                     <button id="checkAvailabilityBtn" class="btn btn-secondary">检查可用性 | Check Availability</button>
@@ -206,8 +218,8 @@
                 <div class="card-header">验证医生 | Verify Doctor</div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">医生地址 | Doctor Address:</label>
-                        <input type="text" id="verifyDoctorAddress" class="form-control">
+                        <label for="verifyDoctorAddress" class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="verifyDoctorAddress" class="form-control" placeholder="输入要验证的医生地址">
                     </div>
                     <button id="verifyDoctorBtn" class="btn btn-warning">验证医生 | Verify Doctor</button>
                     <div id="verifyResult" class="mt-3"></div>
@@ -223,8 +235,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.8.1/dist/web3.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
-
