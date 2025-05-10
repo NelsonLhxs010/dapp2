@@ -1023,12 +1023,10 @@ const contractABI =[
 ];
 const contractAddress = '0xEc6F22aa8f3C50C8bC52F30FA583969E3fD84df4'; // 请填入您的合约地址 | Insert your contract address here
 
-// Web3 和合约变量 | Web3 and contract variables
 let web3;
 let contract;
 let currentAccount;
 let userRole = 'unknown'; // 'director', 'doctor', 'patient', or 'unknown'
-
 // DOM 加载完成后初始化应用 | Initialize app when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
@@ -1044,7 +1042,6 @@ window.addEventListener('DOMContentLoaded', () => {
         updateStatus('请安装 MetaMask 后使用 | Please install MetaMask to use this DApp', true);
     }
 });
-
 // 连接钱包函数 | Connect wallet function
 async function connectWallet() {
     try {
@@ -1074,7 +1071,6 @@ async function connectWallet() {
         throw error;
     }
 }
-
 // 账户变更处理函数 | Handle account changes
 function handleAccountsChanged(accounts) {
     if (accounts.length === 0) {
@@ -1085,7 +1081,6 @@ function handleAccountsChanged(accounts) {
         determineUserRole();
     }
 }
-
 // 确定用户角色 | Determine user role
 async function determineUserRole() {
     try {
@@ -1130,7 +1125,6 @@ async function determineUserRole() {
         updateStatus('确定用户角色出错 | Error determining user role', true);
     }
 }
-
 // 设置所有事件监听器 | Set up all event listeners
 function setupEventListeners() {
     // 院长功能 | Director functions
@@ -1143,6 +1137,7 @@ function setupEventListeners() {
     document.getElementById('addMedicationBtn')?.addEventListener('click', addMedication);
     document.getElementById('setFeeBtn')?.addEventListener('click', setAppointmentFee);
     document.getElementById('getDocAppointmentsBtn')?.addEventListener('click', getDoctorAppointments);
+    document.getElementById('getPatientListBtn')?.addEventListener('click', getPatientList); // 新增患者列表按钮
     
     // 患者功能 | Patient functions
     document.getElementById('registerPatientBtn')?.addEventListener('click', registerAsPatient);
@@ -1156,7 +1151,6 @@ function setupEventListeners() {
     // 通用功能 | Common functions
     document.getElementById('viewAllDoctorsBtn')?.addEventListener('click', () => displayDoctorList('allDoctorsList'));
 }
-
 // 院长功能实现 | Director function implementations
 async function addDoctor() {
     const doctorAddress = document.getElementById('doctorAddress').value;
@@ -1181,7 +1175,6 @@ async function addDoctor() {
         handleError('添加医生出错 | Error adding doctor', error);
     }
 }
-
 async function revokeDoctor() {
     const doctorAddress = document.getElementById('revokeDoctorAddress').value;
     
@@ -1199,7 +1192,6 @@ async function revokeDoctor() {
         handleError('撤销医生出错 | Error revoking doctor', error);
     }
 }
-
 async function getHospitalStats() {
     try {
         const stats = await contract.methods.getHospitalStats().call();
@@ -1215,7 +1207,6 @@ async function getHospitalStats() {
         handleError('获取统计数据出错 | Error getting stats', error);
     }
 }
-
 // 医生功能实现 | Doctor function implementations
 async function addPatient() {
     const patientAddress = document.getElementById('patientAddress').value;
@@ -1237,7 +1228,6 @@ async function addPatient() {
         handleError('添加患者出错 | Error adding patient', error);
     }
 }
-
 async function addMedication() {
     const patientAddress = document.getElementById('medPatientAddress').value;
     const medication = document.getElementById('medication').value;
@@ -1257,7 +1247,6 @@ async function addMedication() {
         handleError('添加药物记录出错 | Error adding medication', error);
     }
 }
-
 async function setAppointmentFee() {
     const fee = document.getElementById('appointmentFee').value;
     
@@ -1276,7 +1265,67 @@ async function setAppointmentFee() {
         handleError('设置费用出错 | Error setting fee', error);
     }
 }
-
+// 新增函数：获取患者列表 | New function: Get patient list
+async function getPatientList() {
+    try {
+        // 获取所有患者地址 | Get all patient addresses
+        const patientAddresses = await contract.methods.patientList().call();
+        
+        if (patientAddresses.length === 0) {
+            document.getElementById('patientListResult').innerHTML = 
+                '<div class="alert alert-info">没有患者 | No patients</div>';
+            return;
+        }
+        
+        let html = '<div class="list-group">';
+        
+        for (let i = 0; i < patientAddresses.length; i++) {
+            const patientAddress = patientAddresses[i];
+            // 获取患者详细信息 | Get patient details
+            const patientInfo = await contract.methods.getPatientDetails(patientAddress).call();
+            
+            html += `
+                <div class="list-group-item">
+                    <h5>患者 #${i+1}</h5>
+                    <p>地址 | Address: <span id="patient-address-${i}">${patientAddress}</span></p>
+                    <p>年龄 | Age: ${patientInfo.age}</p>
+                    <p>性别 | Gender: ${patientInfo.gender}</p>
+                    <p>药物记录 | Medication Record: ${patientInfo.medicationRecord || '无 | None'}</p>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary" onclick="copyToClipboard('${patientAddress}')">
+                            复制地址 | Copy Address
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="fillPatientAddress('${patientAddress}')">
+                            添加药物记录 | Add Medication
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        document.getElementById('patientListResult').innerHTML = html;
+    } catch (error) {
+        handleError('获取患者列表出错 | Error getting patient list', error);
+    }
+}
+// 复制到剪贴板函数 | Copy to clipboard function
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(
+        function() {
+            updateStatus('地址已复制到剪贴板 | Address copied to clipboard');
+        }, 
+        function() {
+            updateStatus('复制失败 | Copy failed', true);
+        }
+    );
+}
+// 新增函数：填充患者地址到药物记录表单 | New function: Fill patient address to medication form
+function fillPatientAddress(address) {
+    document.getElementById('medPatientAddress').value = address;
+    // 滚动到药物记录表单 | Scroll to medication form
+    document.getElementById('medicationFormCard').scrollIntoView({ behavior: 'smooth' });
+}
 async function getDoctorAppointments() {
     try {
         const appointments = await contract.methods.getDoctorAppointments().call({ from: currentAccount });
@@ -1302,12 +1351,20 @@ async function getDoctorAppointments() {
                     <p>费用 | Fee: ${fee} ETH</p>
                     <p>状态 | Status: ${appointment.completed ? '已完成 | Completed' : '未完成 | Pending'}</p>
                     ${!appointment.completed ? `
-                        <button class="btn btn-sm btn-success" onclick="completeAppointment('${appointment.patient}', ${i})">
-                            完成预约 | Complete
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="cancelAppointment('${appointment.patient}', ${i})">
-                            取消预约 | Cancel
-                        </button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" onclick="copyToClipboard('${appointment.patient}')">
+                                复制患者地址 | Copy Patient Address
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="completeAppointment('${appointment.patient}', ${i})">
+                                完成预约 | Complete
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="cancelAppointment('${appointment.patient}', ${i})">
+                                取消预约 | Cancel
+                            </button>
+                            <button class="btn btn-sm btn-info" onclick="fillPatientAddress('${appointment.patient}')">
+                                添加药物记录 | Add Medication
+                            </button>
+                        </div>
                     ` : ''}
                 </div>
             `;
@@ -1319,7 +1376,6 @@ async function getDoctorAppointments() {
         handleError('获取预约出错 | Error getting appointments', error);
     }
 }
-
 async function completeAppointment(patientAddress, appointmentIndex) {
     try {
         updateStatus('完成预约中... | Completing appointment...');
@@ -1331,7 +1387,6 @@ async function completeAppointment(patientAddress, appointmentIndex) {
         handleError('完成预约出错 | Error completing appointment', error);
     }
 }
-
 async function cancelAppointment(patientAddress, appointmentIndex) {
     try {
         updateStatus('取消预约中... | Cancelling appointment...');
@@ -1343,7 +1398,6 @@ async function cancelAppointment(patientAddress, appointmentIndex) {
         handleError('取消预约出错 | Error cancelling appointment', error);
     }
 }
-
 // 患者功能实现 | Patient function implementations
 async function registerAsPatient() {
     const age = document.getElementById('registerAge').value;
@@ -1359,14 +1413,16 @@ async function registerAsPatient() {
             .send({ from: currentAccount });
         updateStatus('注册成功 | Registration successful');
         clearInputs(['registerAge']);
+        
+        // 重新确定用户角色 | Re-determine user role
         await determineUserRole();
     } catch (error) {
         handleError('注册出错 | Error registering', error);
     }
 }
-
 async function displayDoctorList(elementId) {
     try {
+        // 获取所有医生地址 | Get all doctor addresses
         const doctorAddresses = await contract.methods.getAllDoctors().call();
         
         if (doctorAddresses.length === 0) {
@@ -1379,25 +1435,33 @@ async function displayDoctorList(elementId) {
         
         for (let i = 0; i < doctorAddresses.length; i++) {
             const doctorAddress = doctorAddresses[i];
-            const doctorInfo = await contract.methods.doctors(doctorAddress).call();
-            const details = await contract.methods.getDoctorDetails(doctorAddress).call();
-            const rating = await contract.methods.getDoctorRating(doctorAddress).call();
+            // 获取医生详细信息 | Get doctor details
+            const doctorInfo = await contract.methods.getDoctorDetails(doctorAddress).call();
+            // 获取医生评分 | Get doctor rating
+            const ratingInfo = await contract.methods.getDoctorRating(doctorAddress).call();
             
-            const averageRating = rating.ratingCount > 0 ? 
-                (rating.averageRating / 100).toFixed(2) : 'N/A';
+            const averageRating = ratingInfo.ratingCount > 0 ? 
+                (ratingInfo.averageRating / 100).toFixed(2) : 'N/A';
             
             html += `
                 <div class="list-group-item">
                     <h5>医生 #${i+1}</h5>
                     <p>地址 | Address: ${shortenAddress(doctorAddress)}</p>
-                    <p>专业 | Specialty: ${details.specialty}</p>
-                    <p>工作日 | Working Days: ${formatWorkingDays(details.workingDays)}</p>
-                    <p>学历 | Qualification: ${details.qualification}</p>
-                    <p>预约费用 | Appointment Fee: ${web3.utils.fromWei(details.appointmentFee, 'ether')} ETH</p>
-                    <p>评分 | Rating: ${averageRating} (${rating.ratingCount} 评价 | reviews)</p>
-                    <button class="btn btn-sm btn-primary" onclick="copyToClipboard('${doctorAddress}')">
-                        复制地址 | Copy Address
-                    </button>
+                    <p>专业 | Specialty: ${doctorInfo.specialty}</p>
+                    <p>工作日 | Working Days: ${formatWorkingDays(doctorInfo.workingDays)}</p>
+                    <p>学历 | Qualification: ${doctorInfo.qualification}</p>
+                    <p>预约费用 | Appointment Fee: ${web3.utils.fromWei(doctorInfo.appointmentFee, 'ether')} ETH</p>
+                    <p>评分 | Rating: ${averageRating} (${ratingInfo.ratingCount} 条评价 | reviews)</p>
+                    ${userRole === 'patient' ? `
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" onclick="copyToClipboard('${doctorAddress}')">
+                                复制地址 | Copy Address
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="fillDoctorAddress('${doctorAddress}')">
+                                预约 | Book Appointment
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1405,59 +1469,74 @@ async function displayDoctorList(elementId) {
         html += '</div>';
         document.getElementById(elementId).innerHTML = html;
     } catch (error) {
-        handleError('获取医生列表出错 | Error getting doctor list', error);
+        handleError(`获取医生列表出错 | Error getting doctor list: ${elementId}`, error);
     }
 }
-
+// 格式化工作日显示 | Format working days display
+function formatWorkingDays(workingDays) {
+    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    const englishDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let result = '';
+    
+    for (let i = 0; i < workingDays.length; i++) {
+        if (workingDays[i] === '1') {
+            result += `周${days[i]}(${englishDays[i]}) `;
+        }
+    }
+    
+    return result || '无工作日 | No working days';
+}
+// 填充医生地址到预约表单 | Fill doctor address to appointment form
+function fillDoctorAddress(address) {
+    document.getElementById('bookDoctorAddress').value = address;
+    // 滚动到预约表单 | Scroll to appointment form
+    document.getElementById('bookDoctorAddress').closest('.card').scrollIntoView({ behavior: 'smooth' });
+}
 async function checkDoctorAvailability() {
     const doctorAddress = document.getElementById('bookDoctorAddress').value;
     const dateInput = document.getElementById('appointmentDate').value;
     
     if (!validateInputs([
         { value: doctorAddress, message: '请输入医生地址 | Please enter doctor address', isAddress: true },
-        { value: dateInput, message: '请选择日期和时间 | Please select date and time' }
+        { value: dateInput, message: '请输入预约日期 | Please enter appointment date' }
     ])) return;
     
-    const timestamp = Math.floor(new Date(dateInput).getTime() / 1000);
-    
     try {
+        const timestamp = Math.floor(new Date(dateInput).getTime() / 1000);
         const isAvailable = await contract.methods.isDoctorAvailable(doctorAddress, timestamp).call();
         
         document.getElementById('availabilityResult').innerHTML = isAvailable ? 
-            '<div class="alert alert-success">医生可预约 | Doctor is available</div>' : 
-            '<div class="alert alert-danger">医生不可预约 | Doctor is not available</div>';
+            '<div class="alert alert-success">医生可以在此时间预约 | Doctor is available at this time</div>' :
+            '<div class="alert alert-danger">医生在此时间不可用 | Doctor is not available at this time</div>';
     } catch (error) {
         handleError('检查可用性出错 | Error checking availability', error);
     }
 }
-
 async function bookAppointment() {
     const doctorAddress = document.getElementById('bookDoctorAddress').value;
     const dateInput = document.getElementById('appointmentDate').value;
     
     if (!validateInputs([
         { value: doctorAddress, message: '请输入医生地址 | Please enter doctor address', isAddress: true },
-        { value: dateInput, message: '请选择日期和时间 | Please select date and time' }
+        { value: dateInput, message: '请输入预约日期 | Please enter appointment date' }
     ])) return;
     
-    const timestamp = Math.floor(new Date(dateInput).getTime() / 1000);
-    
     try {
-        // 获取医生的预约费用 | Get doctor's appointment fee
-        const doctorInfo = await contract.methods.doctors(doctorAddress).call();
-        const appointmentFee = doctorInfo.appointmentFee;
+        const timestamp = Math.floor(new Date(dateInput).getTime() / 1000);
+        
+        // 获取医生预约费用 | Get doctor's appointment fee
+        const doctorInfo = await contract.methods.getDoctorDetails(doctorAddress).call();
+        const fee = doctorInfo.appointmentFee;
         
         updateStatus('预约中... | Booking appointment...');
         await contract.methods.bookAppointment(doctorAddress, timestamp)
-            .send({ from: currentAccount, value: appointmentFee });
+            .send({ from: currentAccount, value: fee });
         updateStatus('预约成功 | Appointment booked successfully');
         clearInputs(['bookDoctorAddress', 'appointmentDate']);
-        document.getElementById('availabilityResult').innerHTML = '';
     } catch (error) {
         handleError('预约出错 | Error booking appointment', error);
     }
 }
-
 async function getMyMedicalRecord() {
     try {
         const record = await contract.methods.getMyMedicalRecord().call({ from: currentAccount });
@@ -1473,7 +1552,6 @@ async function getMyMedicalRecord() {
         handleError('获取病历出错 | Error getting medical record', error);
     }
 }
-
 async function getMyAppointments() {
     try {
         const appointments = await contract.methods.getMyAppointments().call({ from: currentAccount });
@@ -1491,30 +1569,28 @@ async function getMyAppointments() {
             const date = new Date(appointment.date * 1000);
             const fee = web3.utils.fromWei(appointment.fee, 'ether');
             
-            // 获取医生详细信息
-            const doctorDetails = await contract.methods.getDoctorDetails(appointment.doctor).call();
-            
             html += `
                 <div class="list-group-item">
                     <h5>预约 #${i+1}</h5>
                     <p>医生 | Doctor: ${shortenAddress(appointment.doctor)}</p>
-                    <p>专业 | Specialty: ${doctorDetails.specialty}</p>
                     <p>日期 | Date: ${date.toLocaleString()}</p>
                     <p>费用 | Fee: ${fee} ETH</p>
                     <p>状态 | Status: ${appointment.completed ? '已完成 | Completed' : '未完成 | Pending'}</p>
-                    ${appointment.completed && !hasRatedAppointment(currentAccount, i) ? `
-                        <div class="mt-2">
-                            <label>评分 | Rating:</label>
-                            <select class="form-select" id="rating-${i}">
-                                <option value="1">1 星 | Star</option>
-                                <option value="2">2 星 | Stars</option>
-                                <option value="3">3 星 | Stars</option>
-                                <option value="4">4 星 | Stars</option>
-                                <option value="5" selected>5 星 | Stars</option>
-                            </select>
-                            <button class="btn btn-sm btn-primary mt-2" onclick="rateDoctor('${appointment.doctor}', ${i})">
-                                提交评分 | Submit Rating
-                            </button>
+                    ${appointment.completed ? `
+                        <div>
+                            <label class="form-label">给医生评分 | Rate Doctor (1-5):</label>
+                            <div class="input-group mb-3">
+                                <select class="form-select" id="rating-${i}">
+                                    <option value="1">1 星 | 1 Star</option>
+                                    <option value="2">2 星 | 2 Stars</option>
+                                    <option value="3">3 星 | 3 Stars</option>
+                                    <option value="4">4 星 | 4 Stars</option>
+                                    <option value="5" selected>5 星 | 5 Stars</option>
+                                </select>
+                                <button class="btn btn-outline-primary" onclick="rateDoctor('${appointment.doctor}', ${i})">
+                                    提交评分 | Submit Rating
+                                </button>
+                            </div>
                         </div>
                     ` : ''}
                 </div>
@@ -1527,33 +1603,22 @@ async function getMyAppointments() {
         handleError('获取预约出错 | Error getting appointments', error);
     }
 }
-
-async function hasRatedAppointment(patientAddress, appointmentIndex) {
-    try {
-        return await contract.methods.hasRatedAppointment(patientAddress, appointmentIndex).call();
-    } catch (error) {
-        console.error('检查评分状态出错 | Error checking rating status:', error);
-        return false;
-    }
-}
-
 async function rateDoctor(doctorAddress, appointmentIndex) {
-    const ratingElement = document.getElementById(`rating-${appointmentIndex}`);
-    if (!ratingElement) return;
+    const ratingSelect = document.getElementById(`rating-${appointmentIndex}`);
+    if (!ratingSelect) return;
     
-    const rating = ratingElement.value;
+    const rating = ratingSelect.value;
     
     try {
         updateStatus('提交评分中... | Submitting rating...');
         await contract.methods.rateDoctor(doctorAddress, appointmentIndex, rating)
             .send({ from: currentAccount });
-        updateStatus('评分成功 | Rating submitted successfully');
-        getMyAppointments();
+        updateStatus('评分提交成功 | Rating submitted successfully');
+        getMyAppointments(); // 刷新预约列表 | Refresh appointment list
     } catch (error) {
         handleError('评分出错 | Error rating doctor', error);
     }
 }
-
 async function verifyDoctor() {
     const doctorAddress = document.getElementById('verifyDoctorAddress').value;
     
@@ -1564,92 +1629,82 @@ async function verifyDoctor() {
     try {
         const result = await contract.methods.verifyDoctor(doctorAddress).call();
         
-        document.getElementById('verifyResult').innerHTML = `
-            <div class="alert ${result.isDoctor ? 'alert-success' : 'alert-danger'}">
-                <p>是否为医生 | Is Doctor: ${result.isDoctor ? '是 | Yes' : '否 | No'}</p>
-                ${result.isDoctor ? `
-                    <p>专业 | Specialty: ${result.specialty}</p>
-                    <p>学历 | Qualification: ${result.qualification}</p>
-                    <p>预约费用 | Appointment Fee: ${web3.utils.fromWei(result.appointmentFee, 'ether')} ETH</p>
-                ` : ''}
-            </div>
-        `;
+        document.getElementById('verifyResult').innerHTML = result.isDoctor ? 
+            `<div class="alert alert-success">
+                <p>这是一位真正的医生 | This is a valid doctor</p>
+                <p>专业 | Specialty: ${result.specialty}</p>
+                <p>学历 | Qualification: ${result.qualification}</p>
+                <p>预约费用 | Appointment Fee: ${web3.utils.fromWei(result.appointmentFee, 'ether')} ETH</p>
+            </div>` :
+            '<div class="alert alert-danger">这不是一位有效的医生 | This is not a valid doctor</div>';
     } catch (error) {
         handleError('验证医生出错 | Error verifying doctor', error);
     }
 }
-
 // 辅助函数 | Helper functions
+// 显示状态信息 | Display status message
 function updateStatus(message, isError = false) {
     const statusElement = document.getElementById('statusMessage');
-    statusElement.className = `alert ${isError ? 'alert-danger' : 'alert-info'}`;
+    statusElement.className = isError ? 'alert alert-danger' : 'alert alert-info';
     statusElement.textContent = message;
 }
-
+// 处理错误 | Handle error
 function handleError(message, error) {
     console.error(message, error);
-    updateStatus(`${message}: ${error.message}`, true);
+    updateStatus(`${message}: ${error.message || 'Unknown error'}`, true);
 }
-
-function showSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) section.classList.remove('hidden');
-}
-
-function hideSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) section.classList.add('hidden');
-}
-
-function shortenAddress(address) {
-    return `${address.substring(0, 6)}...${address.substring(38)}`;
-}
-
-function formatWorkingDays(workingDaysString) {
-    const days = ['1', '2', '3', '4', '5', '6', '7'];
-    let result = '';
-    
-    for (let i = 0; i < workingDaysString.length; i++) {
-        if (workingDaysString[i] === '1') {
-            result += `周${days[i]} `;
-        }
-    }
-    
-    return result || '无工作日 | No working days';
-}
-
+// 验证输入 | Validate inputs
 function validateInputs(inputs) {
     for (const input of inputs) {
-        if (!input.value) {
+        if (!input.value || input.value.trim() === '') {
             updateStatus(input.message, true);
             return false;
         }
         
         if (input.isAddress && !web3.utils.isAddress(input.value)) {
-            updateStatus('无效的地址格式 | Invalid address format', true);
+            updateStatus('无效的以太坊地址 | Invalid Ethereum address', true);
             return false;
         }
     }
     return true;
 }
-
+// 清除输入 | Clear inputs
 function clearInputs(inputIds) {
     for (const id of inputIds) {
         const element = document.getElementById(id);
-        if (element) element.value = '';
+        if (element) {
+            element.value = '';
+        }
     }
 }
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        updateStatus('地址已复制 | Address copied');
-    }).catch(err => {
-        console.error('复制失败 | Copy failed:', err);
-    });
+// 显示部分 | Show section
+function showSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.remove('hidden');
+    }
 }
-
-// 全局函数，用于HTML中的onclick调用 | Global functions for onclick calls in HTML
+// 隐藏部分 | Hide section
+function hideSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.add('hidden');
+    }
+}
+// 缩短地址显示 | Shorten address for display
+function shortenAddress(address) {
+    if (!address) return '';
+    return address.substring(0, 6) + '...' + address.substring(address.length - 4);
+}
+// 将时间戳转换为日期字符串 | Convert timestamp to date string
+function formatDate(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString();
+}
+// 添加全局函数，使其可以从HTML中调用 | Add global functions to make them callable from HTML
+window.copyToClipboard = copyToClipboard;
+window.fillPatientAddress = fillPatientAddress;
 window.completeAppointment = completeAppointment;
 window.cancelAppointment = cancelAppointment;
+window.fillDoctorAddress = fillDoctorAddress;
 window.rateDoctor = rateDoctor;
-window.copyToClipboard = copyToClipboard;
