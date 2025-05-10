@@ -1606,7 +1606,7 @@ function shortenAddress(address) {
 }
 
 function formatWorkingDays(workingDaysString) {
-    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    const days = ['1', '2', '3', '4', '5', '6', '7'];
     let result = '';
     
     for (let i = 0; i < workingDaysString.length; i++) {
