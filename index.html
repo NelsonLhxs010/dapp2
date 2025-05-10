@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System DApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">医院管理系统 | Hospital Management System</h1>
+        
+        <div class="alert alert-info" id="statusMessage"></div>
+        
+        <!-- Account Info Section -->
+        <div class="section">
+            <h2>账户信息 | Account Info</h2>
+            <p>地址 | Address: <span id="userAddress">Not connected</span></p>
+            <p>角色 | Role: <span id="userRole">Unknown</span></p>
+            <button id="connectWallet" class="btn btn-primary">连接钱包 | Connect Wallet</button>
+        </div>
+        
+        <!-- Director Section -->
+        <div id="directorSection" class="section hidden">
+            <h2>院长功能 | Director Functions</h2>
+            
+            <div class="card mb-3">
+                <div class="card-header">添加医生 | Add Doctor</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="doctorAddress" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">专业 | Specialty:</label>
+                        <input type="text" id="doctorSpecialty" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">上班时间 | Working Days (e.g. "1111100" for Mon-Fri):</label>
+                        <input type="text" id="doctorWorkingDays" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">学历 | Qualification:</label>
+                        <input type="text" id="doctorQualification" class="form-control">
+                    </div>
+                    <button id="addDoctorBtn" class="btn btn-success">添加医生 | Add Doctor</button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">撤销医生权限 | Revoke Doctor</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="revokeDoctorAddress" class="form-control">
+                    </div>
+                    <button id="revokeDoctorBtn" class="btn btn-danger">撤销医生 | Revoke Doctor</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">医院统计 | Hospital Stats</div>
+                <div class="card-body">
+                    <button id="getStatsBtn" class="btn btn-info">查看统计数据 | Get Statistics</button>
+                    <div id="statsResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Doctor Section -->
+        <div id="doctorSection" class="section hidden">
+            <h2>医生功能 | Doctor Functions</h2>
+            
+            <div class="card mb-3">
+                <div class="card-header">添加患者 | Add Patient</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">患者地址 | Patient Address:</label>
+                        <input type="text" id="patientAddress" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">年龄 | Age:</label>
+                        <input type="number" id="patientAge" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">性别 | Gender:</label>
+                        <select id="patientGender" class="form-select">
+                            <option value="男">男 | Male</option>
+                            <option value="女">女 | Female</option>
+                        </select>
+                    </div>
+                    <button id="addPatientBtn" class="btn btn-success">添加患者 | Add Patient</button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">添加药物记录 | Add Medication</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">患者地址 | Patient Address:</label>
+                        <input type="text" id="medPatientAddress" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">药物记录 | Medication:</label>
+                        <textarea id="medication" class="form-control"></textarea>
+                    </div>
+                    <button id="addMedicationBtn" class="btn btn-primary">添加记录 | Add Medication</button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">设置预约费用 | Set Appointment Fee</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">费用 (ETH) | Fee:</label>
+                        <input type="number" id="appointmentFee" class="form-control" step="0.001">
+                    </div>
+                    <button id="setFeeBtn" class="btn btn-warning">设置费用 | Set Fee</button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">预约管理 | Appointment Management</div>
+                <div class="card-body">
+                    <button id="getDocAppointmentsBtn" class="btn btn-info">查看我的预约 | View My Appointments</button>
+                    <div id="doctorAppointmentsList" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patient Section -->
+        <div id="patientSection" class="section hidden">
+            <h2>患者功能 | Patient Functions</h2>
+            
+            <div class="card mb-3">
+                <div class="card-header">注册为患者 | Register as Patient</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">年龄 | Age:</label>
+                        <input type="number" id="registerAge" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">性别 | Gender:</label>
+                        <select id="registerGender" class="form-select">
+                            <option value="男">男 | Male</option>
+                            <option value="女">女 | Female</option>
+                        </select>
+                    </div>
+                    <button id="registerPatientBtn" class="btn btn-success">注册 | Register</button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">医生列表 | Doctor List</div>
+                <div class="card-body">
+                    <button id="getDoctorsBtn" class="btn btn-info">查看医生列表 | View Doctors</button>
+                    <div id="doctorsList" class="mt-3"></div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">预约医生 | Book Appointment</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="bookDoctorAddress" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">预约日期 | Appointment Date:</label>
+                        <input type="datetime-local" id="appointmentDate" class="form-control">
+                    </div>
+                    <button id="checkAvailabilityBtn" class="btn btn-secondary">检查可用性 | Check Availability</button>
+                    <div id="availabilityResult" class="mt-2"></div>
+                    <button id="bookAppointmentBtn" class="btn btn-primary mt-2">预约 | Book Appointment</button>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">我的记录 | My Records</div>
+                <div class="card-body">
+                    <button id="getMyRecordBtn" class="btn btn-info">查看我的病历 | View My Medical Record</button>
+                    <div id="medicalRecord" class="mt-3"></div>
+                    
+                    <button id="getMyAppointmentsBtn" class="btn btn-info mt-3">查看我的预约 | View My Appointments</button>
+                    <div id="patientAppointmentsList" class="mt-3"></div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header">验证医生 | Verify Doctor</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">医生地址 | Doctor Address:</label>
+                        <input type="text" id="verifyDoctorAddress" class="form-control">
+                    </div>
+                    <button id="verifyDoctorBtn" class="btn btn-warning">验证医生 | Verify Doctor</button>
+                    <div id="verifyResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Common Section - Visible to everyone -->
+        <div class="section">
+            <h2>所有医生 | All Doctors</h2>
+            <button id="viewAllDoctorsBtn" class="btn btn-info">查看所有医生 | View All Doctors</button>
+            <div id="allDoctorsList" class="mt-3"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.1/dist/web3.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
