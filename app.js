@@ -1,1032 +1,15 @@
-// 配置 ABI 和合约地址 | Configure ABI and contract address
-const contractABI =[
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "_specialty",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_workingDays",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_qualification",
-				"type": "string"
-			}
-		],
-		"name": "addDoctor",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_patientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "_medication",
-				"type": "string"
-			}
-		],
-		"name": "addMedication",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_patientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_age",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_gender",
-				"type": "string"
-			}
-		],
-		"name": "addPatient",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "doctor",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "date",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "fee",
-				"type": "uint256"
-			}
-		],
-		"name": "AppointmentBooked",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "doctor",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "date",
-				"type": "uint256"
-			}
-		],
-		"name": "AppointmentCancelled",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "doctor",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "date",
-				"type": "uint256"
-			}
-		],
-		"name": "AppointmentCompleted",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_date",
-				"type": "uint256"
-			}
-		],
-		"name": "bookAppointment",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_patientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_appointmentIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "cancelAppointment",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_patientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_appointmentIndex",
-				"type": "uint256"
-			}
-		],
-		"name": "completeAppointment",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "doctorAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "specialty",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "workingDays",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "qualification",
-				"type": "string"
-			}
-		],
-		"name": "DoctorAdded",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "doctor",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint8",
-				"name": "rating",
-				"type": "uint8"
-			}
-		],
-		"name": "DoctorRated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "doctorAddress",
-				"type": "address"
-			}
-		],
-		"name": "DoctorRevoked",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "medication",
-				"type": "string"
-			}
-		],
-		"name": "MedicationAdded",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "patientAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "age",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "gender",
-				"type": "string"
-			}
-		],
-		"name": "PatientAdded",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_appointmentIndex",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint8",
-				"name": "_rating",
-				"type": "uint8"
-			}
-		],
-		"name": "rateDoctor",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_age",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_gender",
-				"type": "string"
-			}
-		],
-		"name": "registerAsSelfPatient",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			}
-		],
-		"name": "revokeDoctor",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_fee",
-				"type": "uint256"
-			}
-		],
-		"name": "setAppointmentFee",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "appointmentCountPerDay",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "director",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "doctorAppointments",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "doctor",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "date",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "fee",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "completed",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "doctorList",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "doctors",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "doctorAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "specialty",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "workingDays",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "qualification",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "appointmentFee",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "isActive",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "listIndex",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "totalRating",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "ratingCount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getAllDoctors",
-		"outputs": [
-			{
-				"internalType": "address[]",
-				"name": "",
-				"type": "address[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getDoctorAppointments",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "address",
-						"name": "patient",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "doctor",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "date",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "fee",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bool",
-						"name": "completed",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct HospitalManagement.Appointment[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			}
-		],
-		"name": "getDoctorDetails",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "specialty",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "workingDays",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "qualification",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "appointmentFee",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			}
-		],
-		"name": "getDoctorRating",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "averageRating",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "ratingCount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "start",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "pageSize",
-				"type": "uint256"
-			}
-		],
-		"name": "getDoctorsPage",
-		"outputs": [
-			{
-				"internalType": "address[]",
-				"name": "",
-				"type": "address[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getHospitalStats",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "doctorCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "patientCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "appointmentCount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getMyAppointments",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "address",
-						"name": "patient",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "doctor",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "date",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "fee",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bool",
-						"name": "completed",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct HospitalManagement.Appointment[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getMyMedicalRecord",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "age",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "gender",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "medicationRecord",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_patientAddress",
-				"type": "address"
-			}
-		],
-		"name": "getPatientDetails",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "patientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "age",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "gender",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "medicationRecord",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "exists",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "hasRatedAppointment",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_date",
-				"type": "uint256"
-			}
-		],
-		"name": "isDoctorAvailable",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_date",
-				"type": "uint256"
-			}
-		],
-		"name": "isDoctorWorkingOnDate",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "patientAppointments",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "doctor",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "date",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "fee",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "completed",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "patientList",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "patients",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "patientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "age",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "gender",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "medicationRecord",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "exists",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_doctorAddress",
-				"type": "address"
-			}
-		],
-		"name": "verifyDoctor",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "isDoctor",
-				"type": "bool"
-			},
-			{
-				"internalType": "string",
-				"name": "specialty",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "qualification",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "appointmentFee",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
 const contractAddress = '0xEc6F22aa8f3C50C8bC52F30FA583969E3fD84df4'; // 请填入您的合约地址 | Insert your contract address here
+
+// 这里需要添加合约 ABI | Contract ABI needs to be added here
+const contractABI = [
+    // 您需要在这里添加您的合约 ABI | You need to add your contract ABI here
+];
 
 let web3;
 let contract;
 let currentAccount;
 let userRole = 'unknown'; // 'director', 'doctor', 'patient', or 'unknown'
+
 // DOM 加载完成后初始化应用 | Initialize app when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
@@ -1042,6 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
         updateStatus('请安装 MetaMask 后使用 | Please install MetaMask to use this DApp', true);
     }
 });
+
 // 连接钱包函数 | Connect wallet function
 async function connectWallet() {
     try {
@@ -1071,6 +55,7 @@ async function connectWallet() {
         throw error;
     }
 }
+
 // 账户变更处理函数 | Handle account changes
 function handleAccountsChanged(accounts) {
     if (accounts.length === 0) {
@@ -1081,6 +66,7 @@ function handleAccountsChanged(accounts) {
         determineUserRole();
     }
 }
+
 // 确定用户角色 | Determine user role
 async function determineUserRole() {
     try {
@@ -1125,8 +111,11 @@ async function determineUserRole() {
         updateStatus('确定用户角色出错 | Error determining user role', true);
     }
 }
+
 // 设置所有事件监听器 | Set up all event listeners
 function setupEventListeners() {
+    // 使用可选链操作符，防止元素不存在时报错 | Use optional chaining to prevent errors when elements don't exist
+    
     // 院长功能 | Director functions
     document.getElementById('addDoctorBtn')?.addEventListener('click', addDoctor);
     document.getElementById('revokeDoctorBtn')?.addEventListener('click', revokeDoctor);
@@ -1137,7 +126,12 @@ function setupEventListeners() {
     document.getElementById('addMedicationBtn')?.addEventListener('click', addMedication);
     document.getElementById('setFeeBtn')?.addEventListener('click', setAppointmentFee);
     document.getElementById('getDocAppointmentsBtn')?.addEventListener('click', getDoctorAppointments);
-    document.getElementById('getPatientListBtn')?.addEventListener('click', getPatientList); // 新增患者列表按钮
+    
+    // 检查患者列表按钮是否存在 | Check if patient list button exists
+    const patientListBtn = document.getElementById('getPatientListBtn');
+    if (patientListBtn) {
+        patientListBtn.addEventListener('click', getPatientList);
+    }
     
     // 患者功能 | Patient functions
     document.getElementById('registerPatientBtn')?.addEventListener('click', registerAsPatient);
@@ -1151,6 +145,7 @@ function setupEventListeners() {
     // 通用功能 | Common functions
     document.getElementById('viewAllDoctorsBtn')?.addEventListener('click', () => displayDoctorList('allDoctorsList'));
 }
+
 // 院长功能实现 | Director function implementations
 async function addDoctor() {
     const doctorAddress = document.getElementById('doctorAddress').value;
@@ -1175,6 +170,7 @@ async function addDoctor() {
         handleError('添加医生出错 | Error adding doctor', error);
     }
 }
+
 async function revokeDoctor() {
     const doctorAddress = document.getElementById('revokeDoctorAddress').value;
     
@@ -1192,6 +188,7 @@ async function revokeDoctor() {
         handleError('撤销医生出错 | Error revoking doctor', error);
     }
 }
+
 async function getHospitalStats() {
     try {
         const stats = await contract.methods.getHospitalStats().call();
@@ -1207,6 +204,7 @@ async function getHospitalStats() {
         handleError('获取统计数据出错 | Error getting stats', error);
     }
 }
+
 // 医生功能实现 | Doctor function implementations
 async function addPatient() {
     const patientAddress = document.getElementById('patientAddress').value;
@@ -1228,6 +226,7 @@ async function addPatient() {
         handleError('添加患者出错 | Error adding patient', error);
     }
 }
+
 async function addMedication() {
     const patientAddress = document.getElementById('medPatientAddress').value;
     const medication = document.getElementById('medication').value;
@@ -1247,6 +246,7 @@ async function addMedication() {
         handleError('添加药物记录出错 | Error adding medication', error);
     }
 }
+
 async function setAppointmentFee() {
     const fee = document.getElementById('appointmentFee').value;
     
@@ -1265,14 +265,22 @@ async function setAppointmentFee() {
         handleError('设置费用出错 | Error setting fee', error);
     }
 }
+
 // 新增函数：获取患者列表 | New function: Get patient list
 async function getPatientList() {
     try {
+        // 检查结果容器是否存在 | Check if result container exists
+        const resultContainer = document.getElementById('patientListResult');
+        if (!resultContainer) {
+            console.error('患者列表结果容器不存在 | Patient list result container does not exist');
+            return;
+        }
+        
         // 获取所有患者地址 | Get all patient addresses
         const patientAddresses = await contract.methods.patientList().call();
         
         if (patientAddresses.length === 0) {
-            document.getElementById('patientListResult').innerHTML = 
+            resultContainer.innerHTML = 
                 '<div class="alert alert-info">没有患者 | No patients</div>';
             return;
         }
@@ -1304,13 +312,19 @@ async function getPatientList() {
         }
         
         html += '</div>';
-        document.getElementById('patientListResult').innerHTML = html;
+        resultContainer.innerHTML = html;
     } catch (error) {
         handleError('获取患者列表出错 | Error getting patient list', error);
     }
 }
+
 // 复制到剪贴板函数 | Copy to clipboard function
 function copyToClipboard(text) {
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(text);
+        return;
+    }
+    
     navigator.clipboard.writeText(text).then(
         function() {
             updateStatus('地址已复制到剪贴板 | Address copied to clipboard');
@@ -1320,18 +334,56 @@ function copyToClipboard(text) {
         }
     );
 }
+
+// 兼容性复制文本到剪贴板 | Fallback method to copy text to clipboard
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // 避免滚动到底部 | Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        updateStatus(successful ? '地址已复制到剪贴板 | Address copied to clipboard' : '复制失败 | Copy failed', !successful);
+    } catch (err) {
+        updateStatus('复制失败 | Copy failed', true);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
 // 新增函数：填充患者地址到药物记录表单 | New function: Fill patient address to medication form
 function fillPatientAddress(address) {
-    document.getElementById('medPatientAddress').value = address;
-    // 滚动到药物记录表单 | Scroll to medication form
-    document.getElementById('medicationFormCard').scrollIntoView({ behavior: 'smooth' });
+    const medPatientAddressInput = document.getElementById('medPatientAddress');
+    if (medPatientAddressInput) {
+        medPatientAddressInput.value = address;
+        // 滚动到药物记录表单 | Scroll to medication form
+        const medicationFormCard = document.getElementById('medicationFormCard');
+        if (medicationFormCard) {
+            medicationFormCard.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 }
+
 async function getDoctorAppointments() {
     try {
         const appointments = await contract.methods.getDoctorAppointments().call({ from: currentAccount });
+        const appointmentsList = document.getElementById('doctorAppointmentsList');
+        
+        if (!appointmentsList) {
+            console.error('医生预约列表容器不存在 | Doctor appointments list container does not exist');
+            return;
+        }
         
         if (appointments.length === 0) {
-            document.getElementById('doctorAppointmentsList').innerHTML = 
+            appointmentsList.innerHTML = 
                 '<div class="alert alert-info">没有预约 | No appointments</div>';
             return;
         }
@@ -1371,11 +423,12 @@ async function getDoctorAppointments() {
         }
         
         html += '</div>';
-        document.getElementById('doctorAppointmentsList').innerHTML = html;
+        appointmentsList.innerHTML = html;
     } catch (error) {
         handleError('获取预约出错 | Error getting appointments', error);
     }
 }
+
 async function completeAppointment(patientAddress, appointmentIndex) {
     try {
         updateStatus('完成预约中... | Completing appointment...');
@@ -1387,6 +440,7 @@ async function completeAppointment(patientAddress, appointmentIndex) {
         handleError('完成预约出错 | Error completing appointment', error);
     }
 }
+
 async function cancelAppointment(patientAddress, appointmentIndex) {
     try {
         updateStatus('取消预约中... | Cancelling appointment...');
@@ -1398,6 +452,7 @@ async function cancelAppointment(patientAddress, appointmentIndex) {
         handleError('取消预约出错 | Error cancelling appointment', error);
     }
 }
+
 // 患者功能实现 | Patient function implementations
 async function registerAsPatient() {
     const age = document.getElementById('registerAge').value;
@@ -1420,13 +475,20 @@ async function registerAsPatient() {
         handleError('注册出错 | Error registering', error);
     }
 }
+
 async function displayDoctorList(elementId) {
     try {
+        const doctorListElement = document.getElementById(elementId);
+        if (!doctorListElement) {
+            console.error(`医生列表容器不存在: ${elementId} | Doctor list container does not exist: ${elementId}`);
+            return;
+        }
+        
         // 获取所有医生地址 | Get all doctor addresses
         const doctorAddresses = await contract.methods.getAllDoctors().call();
         
         if (doctorAddresses.length === 0) {
-            document.getElementById(elementId).innerHTML = 
+            doctorListElement.innerHTML = 
                 '<div class="alert alert-info">没有医生 | No doctors</div>';
             return;
         }
@@ -1467,11 +529,12 @@ async function displayDoctorList(elementId) {
         }
         
         html += '</div>';
-        document.getElementById(elementId).innerHTML = html;
+        doctorListElement.innerHTML = html;
     } catch (error) {
         handleError(`获取医生列表出错 | Error getting doctor list: ${elementId}`, error);
     }
 }
+
 // 格式化工作日显示 | Format working days display
 function formatWorkingDays(workingDays) {
     const days = ['日', '一', '二', '三', '四', '五', '六'];
@@ -1486,12 +549,20 @@ function formatWorkingDays(workingDays) {
     
     return result || '无工作日 | No working days';
 }
+
 // 填充医生地址到预约表单 | Fill doctor address to appointment form
 function fillDoctorAddress(address) {
-    document.getElementById('bookDoctorAddress').value = address;
-    // 滚动到预约表单 | Scroll to appointment form
-    document.getElementById('bookDoctorAddress').closest('.card').scrollIntoView({ behavior: 'smooth' });
+    const bookDoctorAddressInput = document.getElementById('bookDoctorAddress');
+    if (bookDoctorAddressInput) {
+        bookDoctorAddressInput.value = address;
+        // 滚动到预约表单 | Scroll to appointment form
+        const parentCard = bookDoctorAddressInput.closest('.card');
+        if (parentCard) {
+            parentCard.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 }
+
 async function checkDoctorAvailability() {
     const doctorAddress = document.getElementById('bookDoctorAddress').value;
     const dateInput = document.getElementById('appointmentDate').value;
@@ -1505,13 +576,17 @@ async function checkDoctorAvailability() {
         const timestamp = Math.floor(new Date(dateInput).getTime() / 1000);
         const isAvailable = await contract.methods.isDoctorAvailable(doctorAddress, timestamp).call();
         
-        document.getElementById('availabilityResult').innerHTML = isAvailable ? 
-            '<div class="alert alert-success">医生可以在此时间预约 | Doctor is available at this time</div>' :
-            '<div class="alert alert-danger">医生在此时间不可用 | Doctor is not available at this time</div>';
+        const availabilityResult = document.getElementById('availabilityResult');
+        if (availabilityResult) {
+            availabilityResult.innerHTML = isAvailable ? 
+                '<div class="alert alert-success">医生可以在此时间预约 | Doctor is available at this time</div>' :
+                '<div class="alert alert-danger">医生在此时间不可用 | Doctor is not available at this time</div>';
+        }
     } catch (error) {
         handleError('检查可用性出错 | Error checking availability', error);
     }
 }
+
 async function bookAppointment() {
     const doctorAddress = document.getElementById('bookDoctorAddress').value;
     const dateInput = document.getElementById('appointmentDate').value;
@@ -1537,27 +612,38 @@ async function bookAppointment() {
         handleError('预约出错 | Error booking appointment', error);
     }
 }
+
 async function getMyMedicalRecord() {
     try {
         const record = await contract.methods.getMyMedicalRecord().call({ from: currentAccount });
         
-        document.getElementById('medicalRecord').innerHTML = `
-            <div class="alert alert-info">
-                <p>年龄 | Age: ${record.age}</p>
-                <p>性别 | Gender: ${record.gender}</p>
-                <p>药物记录 | Medication Record: ${record.medicationRecord || '无 | None'}</p>
-            </div>
-        `;
+        const medicalRecordElement = document.getElementById('medicalRecord');
+        if (medicalRecordElement) {
+            medicalRecordElement.innerHTML = `
+                <div class="alert alert-info">
+                    <p>年龄 | Age: ${record.age}</p>
+                    <p>性别 | Gender: ${record.gender}</p>
+                    <p>药物记录 | Medication Record: ${record.medicationRecord || '无 | None'}</p>
+                </div>
+            `;
+        }
     } catch (error) {
         handleError('获取病历出错 | Error getting medical record', error);
     }
 }
+
 async function getMyAppointments() {
     try {
         const appointments = await contract.methods.getMyAppointments().call({ from: currentAccount });
         
+        const appointmentsList = document.getElementById('patientAppointmentsList');
+        if (!appointmentsList) {
+            console.error('患者预约列表容器不存在 | Patient appointments list container does not exist');
+            return;
+        }
+        
         if (appointments.length === 0) {
-            document.getElementById('patientAppointmentsList').innerHTML = 
+            appointmentsList.innerHTML = 
                 '<div class="alert alert-info">没有预约 | No appointments</div>';
             return;
         }
@@ -1598,7 +684,7 @@ async function getMyAppointments() {
         }
         
         html += '</div>';
-        document.getElementById('patientAppointmentsList').innerHTML = html;
+        appointmentsList.innerHTML = html;
     } catch (error) {
         handleError('获取预约出错 | Error getting appointments', error);
     }
@@ -1629,14 +715,17 @@ async function verifyDoctor() {
     try {
         const result = await contract.methods.verifyDoctor(doctorAddress).call();
         
-        document.getElementById('verifyResult').innerHTML = result.isDoctor ? 
-            `<div class="alert alert-success">
-                <p>这是一位真正的医生 | This is a valid doctor</p>
-                <p>专业 | Specialty: ${result.specialty}</p>
-                <p>学历 | Qualification: ${result.qualification}</p>
-                <p>预约费用 | Appointment Fee: ${web3.utils.fromWei(result.appointmentFee, 'ether')} ETH</p>
-            </div>` :
-            '<div class="alert alert-danger">这不是一位有效的医生 | This is not a valid doctor</div>';
+        const verifyResult = document.getElementById('verifyResult');
+        if (verifyResult) {
+            verifyResult.innerHTML = result.isDoctor ? 
+                `<div class="alert alert-success">
+                    <p>这是一位真正的医生 | This is a valid doctor</p>
+                    <p>专业 | Specialty: ${result.specialty}</p>
+                    <p>学历 | Qualification: ${result.qualification}</p>
+                    <p>预约费用 | Appointment Fee: ${web3.utils.fromWei(result.appointmentFee, 'ether')} ETH</p>
+                </div>` :
+                '<div class="alert alert-danger">这不是一位有效的医生 | This is not a valid doctor</div>';
+        }
     } catch (error) {
         handleError('验证医生出错 | Error verifying doctor', error);
     }
@@ -1645,8 +734,10 @@ async function verifyDoctor() {
 // 显示状态信息 | Display status message
 function updateStatus(message, isError = false) {
     const statusElement = document.getElementById('statusMessage');
-    statusElement.className = isError ? 'alert alert-danger' : 'alert alert-info';
-    statusElement.textContent = message;
+    if (statusElement) {
+        statusElement.className = isError ? 'alert alert-danger' : 'alert alert-info';
+        statusElement.textContent = message;
+    }
 }
 // 处理错误 | Handle error
 function handleError(message, error) {
